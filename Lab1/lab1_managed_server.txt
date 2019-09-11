@@ -1,0 +1,6 @@
+ssh-keygen
+
+sudo apt install python
+
+sudo apt-get install htop
+

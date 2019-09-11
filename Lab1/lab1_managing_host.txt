@@ -1,0 +1,19 @@
+sudo apt install ansible
+
+ssh-keygen
+
+mkdir ansible
+cd ansible
+nano hosts.ini
+
+[ubuntu]
+10.0.2.6 ansible_user=dariagory
+
+ssh 10.0.2.6
+
+sudo apt-get install sshpass
+ansible ubuntu -m ping -i hosts.ini --ask-pass
+
+ansible -m shell -a ‘htop’ -i hosts.ini ubuntu -u dariagory --become --ask-sudo-pass
+
+ansible -m shell -a ‘ps -A’ -i hosts.ini ubuntu -u dariagory --become --ask-sudo-pass

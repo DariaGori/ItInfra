@@ -1,0 +1,50 @@
+---
+- name: Lab2
+  hosts: 10.0.2.6
+  remote_user: dariagory
+  become: yes
+  tasks:
+  
+  - name: Check for SSH password
+    authorized_key:
+      user: dariagory
+      key: "{{ lookup('file', '/home/dariagory/.ssh/id_rsa.pub') }}"
+      
+  - name: Remove sudo password request
+    copy:
+      dest: /etc/sudoers.d/dariagory
+      content: "dariagory ALL = NOPASSWD: ALL"
+      
+  - name: Create sysadmins group
+    group:
+      name: sysadmins
+      
+  - name: Add user romankuchin
+    user:
+      name: romankuchin
+      group: sysadmins
+      shell: /bin/bash
+      
+  - name: Import GitHub SSH key for romankuchin
+    authorized_key:
+      user: romankuchin
+      key: https://github.com/romankuchin.keys
+  
+  - name: Add user hudolejev
+    user:
+      name: hudolejev
+      group: sysadmins
+      shell: /bin/bash
+      
+  - name: Import GitHub SSH key for hudolejev
+    authorized_key: 
+      user: hudolejev
+      key: htps://github.com/hudolejev.keys
+      
+  - name: Show process list
+    command: "ps"
+    register: proc
+
+  - name: Show output
+    debug:
+      var: proc.stdout_lines    

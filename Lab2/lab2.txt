@@ -1,0 +1,4 @@
+cd ansible
+nano init.yml
+
+ansible-playbook init.yml -i hosts.ini --ask-pass --ask-sudo-pass

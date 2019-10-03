@@ -1,6 +1,6 @@
 ---
 - name: Lab2
-  hosts: 10.0.2.6
+  hosts: 10.0.2.7
   remote_user: dariagory
   become: yes
   tasks:
@@ -22,7 +22,7 @@
   - name: Add user romankuchin
     user:
       name: romankuchin
-      group: sysadmins
+      groups: sysadmins
       shell: /bin/bash
       
   - name: Import GitHub SSH key for romankuchin
@@ -33,7 +33,7 @@
   - name: Add user hudolejev
     user:
       name: hudolejev
-      group: sysadmins
+      groups: sysadmins
       shell: /bin/bash
       
   - name: Import GitHub SSH key for hudolejev

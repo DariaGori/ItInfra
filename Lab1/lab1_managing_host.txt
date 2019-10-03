@@ -7,9 +7,9 @@ cd ansible
 nano hosts.ini
 
 [ubuntu]
-10.0.2.6 ansible_user=dariagory
+10.0.2.7 ansible_user=dariagory
 
-ssh 10.0.2.6
+ssh 10.0.2.7
 
 sudo apt-get install sshpass
 ansible ubuntu -m ping -i hosts.ini --ask-pass

@@ -1,4 +1,8 @@
 cd ansible
 nano init.yml
 
-ansible-playbook init.yml -i hosts.ini --ask-pass --ask-sudo-pass
+ssh-copy-id dariagory@10.0.2.7
+
+echo "nameserver 8.8.8.8" | sudo tee /etc/resolv.conf > /dev/null
+
+ansible-playbook init.yml -i hosts --ask-pass --ask-sudo-pass

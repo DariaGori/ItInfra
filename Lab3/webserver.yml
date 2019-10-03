@@ -1,0 +1,48 @@
+---
+- name: Lab3
+  hosts: ubuntu
+  remote_user: dariagory
+  become: yes
+  tasks:
+  
+  - name: Remove sudo password request
+    copy:
+      dest: /etc/sudoers.d/dariagory
+      content: "dariagory ALL = NOPASSWD: ALL"
+  
+  - name: Install Apache webserver
+    apt: name=apache2 update_cache=yes state=latest
+    
+  - name: Check apache version
+    command: "apache2 -v"
+    register: version
+    
+  - name: Show apache version
+    debug:
+      var: version.stdout_lines
+      
+  - name: Set Apache to listen on a custom port
+    copy:
+      src: ports.conf
+      dest: /etc/apache2/ports.conf
+    notify:
+      - Restart apache2
+      
+  - name: Install PHP
+    apt: name=php update_cache=yes state=latest
+    
+  - name: Add config
+    copy:
+      src: php.conf
+      dest: /etc/apache2/sites-enabled/
+    notify:
+      - Restart apache2
+      
+  - name: Create PHP file
+    copy:
+      src: index.php
+      dest: /var/www/php/
+      
+  handlers:
+    - name: Restart apache2
+      service: name=apache2 state=restarted

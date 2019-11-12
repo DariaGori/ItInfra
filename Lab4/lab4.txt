@@ -1,0 +1,4 @@
+ansible-playbook wordpress.yml --ask-vault-pass
+
+***How to push {{ password }} as a variable into wp-config-temp?
+***How to make wp-config-temp get a value from password var in playbook?

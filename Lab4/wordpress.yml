@@ -3,14 +3,6 @@
   hosts: frontend_servers
   remote_user: dariagory
   become: yes
-  vars:
-    password: !vault |
-	      $ANSIBLE_VAULT;1.1:AES256
-		  31656530373835303063353461393063303833613062326666356665666463383534316535333362
-          3037383939353631373163383962643530393736336361660a393563343834356331303463653463
-          32376531343533656464623731316666626639386364633335393833613830613532633430323761
-          3666393764306430660a353333663366326632636139356137313062613631626133636533303462
-          3131
   tasks:
   - name: Remove sudo password request
     copy:
@@ -59,10 +51,9 @@
       creates: /var/www/wordpress
       
   - name: Update default Apache site
-    lineinfile:
+    template:
+      src: 000-default.conf.j2
       dest: /etc/apache2/sites-enabled/000-default.conf
-      regexp: "(.) +DocumentRoot /var/www/html"
-      line: "DocumentRoot /var/www/wordpress"
     notify:
       - Restart Apache
       
@@ -73,29 +64,6 @@
       owner: dariagory
       group: dariagory
       mode: 0755
-      
-  - name: Copy sample WP config into template
-    template:
-      src: /var/www/wordpress/wp-config-sample.php
-      dest: /home/dariagory/lab4/wp-config-temp.php.j2
-      
-  - name: Change DB name in template
-    lineinfile:
-      dest: /home/dariagory/lab4/wp-config-temp.php.j2
-      regexp: "define\\( 'DB_NAME', '(.)+' \\);"
-      line: "define( 'DB_NAME', 'dahara_db' );"
-      
-  - name: Change username for DB in template
-    lineinfile:
-      dest: /home/dariagory/lab4/wp-config-temp.php.j2
-      regexp: "define\\( 'DB_USER', '(.)+' \\);"
-      line: "define( 'DB_USER', 'dariagory' );"
-      
-  - name: Change DB password in template
-    lineinfile:
-      dest: /home/dariagory/lab4/wp-config-temp.php.j2
-      regexp: "define\\( 'DB_PASSWORD', '(.)+' \\);"
-      line: "define( 'DB_PASSWORD', '{{ password }}' );"
       
   - name: Copy template to WP config file
     template: 
@@ -110,14 +78,6 @@
   hosts: database_servers
   remote_user: dariagory
   become: yes
-  vars:
-    password: !vault |
-	      $ANSIBLE_VAULT;1.1:AES256
-		  31656530373835303063353461393063303833613062326666356665666463383534316535333362
-          3037383939353631373163383962643530393736336361660a393563343834356331303463653463
-          32376531343533656464623731316666626639386364633335393833613830613532633430323761
-          3666393764306430660a353333663366326632636139356137313062613631626133636533303462
-          3131
   tasks:
   - name: Install packages for MySQL
     apt:
@@ -130,12 +90,12 @@
       
   - name: Create a DB
     mysql_db:
-      name: dahara_db
+      name: "{{ db_name }}"
       state: present
       
   - name: Create a DB user
     mysql_user:
-      name: dariagory
+      name: {{ db_user }}"
       password: "{{ password }}"
       priv: '*.*:ALL'
       state: present

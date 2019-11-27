@@ -1,0 +1,91 @@
+---
+- name: Initial setup
+  hosts: all
+  remote_user: dariagory
+  become: yes
+  tasks:
+    - name: Set up serial interface
+      template:
+        src: templates/enp0s8.j2
+        dest: /etc/netplan/55-enp0s8.yml
+      notify:
+        - Apply Netplan
+    
+    # Stop network name resolution service
+    - name: Stop systemd-resolved
+      service: name=systemd-resolved state=stopped enabled=no
+    
+  handlers:
+    - name: Apply Netplan
+      shell: netplan apply
+      
+- name: DNS setup
+  hosts: dns
+  remote_user: dariagory
+  become: yes
+  tasks:
+    - name: Remove sudo password request
+      copy:
+        dest: /etc/sudoers.d/dariagory
+        content: "dariagory ALL = NOPASSWD: ALL"
+        
+    - name: Get bind9
+      apt:
+        package: bind9
+        
+    - name: Configure bind
+      template:
+        src: templates/named.conf.options.j2
+        dest: /etc/bind/named.conf.options
+      notify:
+        - Restart bind
+        - Check named config file syntax
+        
+    - name: Configure bind.local
+      template:
+        src: /templates/named.conf.local.j2
+        dest: /etc/bind/named.conf.local
+      notify:
+        - Restart bind
+        - Check named config file syntax
+        
+    - name: Check zone hash
+      copy:
+        content: "{{ records|hash }}"
+        dest: /etc/bind/db.syster.hash
+      when: dns_role == "master"
+      notify:
+        - Restart bind
+        - Bind reload DB
+        
+    - name: Get timestamp
+      shell: "date +%s"
+      register: timestamp
+      
+    - name: Configure DB
+      template:
+        src: templates/db.syster.j2
+        dest: /etc/bind/db.syster
+      when: dns_role == "master"
+      notify:
+        - Restart bind
+        - Bind reload DB
+        
+    - name: Configure DB pointer
+      template:
+        src: templates/db.syster.ptr.j2
+        dest: /etc/bind/db.syster.ptr
+      when: dns_role == "master"
+      notify:
+        - Restart bind
+        - Bind reload DB
+        
+  handlers:
+    - name: Check named config file syntax
+      shell: named-checkconf
+      
+    - name: Bind reload DB
+      shell: rndc reload
+      
+    - name: Restart bind
+      service: name=bind9 state=restarted

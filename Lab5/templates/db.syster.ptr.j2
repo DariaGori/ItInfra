@@ -1,0 +1,22 @@
+$TTL	604800
+@	IN	SOA	syster.ttu. root.syster.ttu. (
+			 {{ timestamp.stdout_lines[0] }}		; Serial
+			 604800		; Refresh
+			  86400		; Retry
+			2419200		; Expire
+			 604800 )	; Negative Cache TTL
+;
+
+{% for record in records %}
+{% if record.type == 'NS' %}
+{% for entry in record.entries %}
+{% if 'address' in entry %}
+        IN {{ record.type }} {{ entry.address }}
+{% endif %}
+{% endfor %}
+{% elif record.type == 'PTR' %}
+{% for entry in record.entries %}
+{{ entry.name }} IN {{ record.type }} {{ entry.address }}
+{% endfor %}
+{% endif %}
+{% endfor %}

@@ -33,7 +33,7 @@
   - name: Add config for port 8080
     copy: 
       src: 8080-default.conf
-      dest: /etc/apache2/ports.conf
+      dest: /etc/apache2/sites-enabled/
     notify:
       - Restart Apache
       

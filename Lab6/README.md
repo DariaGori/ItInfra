@@ -1,0 +1,4 @@
+- Run backup_agent.yml to set up the agent node
+- Run backup_server.yml to set up the server
+- Run init.yml to push SSH keys to newly created users and allow passwordless access
+- Run cron.yml to place backup schedules

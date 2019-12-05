@@ -1,0 +1,15 @@
+5 1 * * 0	{{ mgm_user }}	duplicity --no-encryption incremental /home/{{ mgm_user }}/lab3 rsync://{{ bserver }}//srv/backup/ansible/webserver_setup/
+
+10 1 28 * *	{{ mgm_user }}	duplicity --no-encryption full /home/{{ mgm_user }}/lab3 rsync://{{ bserver }}//srv/backup/ansible/webserver_setup/
+
+6 1 * * 0	{{ mgm_user }}	duplicity --no-encryption incremental /home/{{ mgm_user }}/lab4 rsync://{{ bserver }}//srv/backup/ansible/wordpress_setup/
+
+11 1 28 * *	{{ mgm_user }}	duplicity --no-encryption full /home/{{ mgm_user }}/lab4 rsync://{{ bserver }}//srv/backup/ansible/wordpress_setup/
+
+7 1 * * 0	{{ mgm_user }}	duplicity --no-encryption incremental /home/{{ mgm_user }}/lab5 rsync://{{ bserver }}//srv/backup/ansible/dns_setup/
+
+12 1 28 * *	{{ mgm_user }}	duplicity --no-encryption full /home/{{ mgm_user }}/lab5 rsync://{{ bserver }}//srv/backup/ansible/dns_setup/
+
+8 1 * * 0	{{ mgm_user }}	duplicity --no-encryption incremental /home/{{ mgm_user }}/lab6 rsync://{{ bserver }}//srv/backup/ansible/backup_setup/
+
+13 1 28 * *	{{ mgm_user }}	duplicity --no-encryption full /home/{{ mgm_user }}/lab6 rsync://{{ bserver }}//srv/backup/ansible/backup_setup/

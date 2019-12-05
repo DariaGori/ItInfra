@@ -49,7 +49,7 @@
         - Restart bind
         - Check named config file syntax
         
-    - name: Check zone hash
+    - name: Hash DB
       copy:
         content: "{{ records|hash }}"
         dest: /etc/bind/db.syster.hash
@@ -57,7 +57,21 @@
       notify:
         - Restart bind
         - Bind reload DB
+        - Get timestamp
+        - Configure DB
+    
+    - name: Hash DB PTR
+      copy:
+        content: "{{ records|hash }}"
+        dest: /etc/bind/db.syster.ptr.hash
+      when: dns_role == "master"
+      notify:
+        - Restart bind
+        - Bind reload DB
+        - Get timestamp
+        - Configure DB pointer  
         
+  handlers:
     - name: Get timestamp
       shell: "date +%s"
       register: timestamp
@@ -66,21 +80,12 @@
       template:
         src: templates/db.syster.j2
         dest: /etc/bind/db.syster
-      when: dns_role == "master"
-      notify:
-        - Restart bind
-        - Bind reload DB
         
     - name: Configure DB pointer
       template:
         src: templates/db.syster.ptr.j2
         dest: /etc/bind/db.syster.ptr
-      when: dns_role == "master"
-      notify:
-        - Restart bind
-        - Bind reload DB
-        
-  handlers:
+      
     - name: Check named config file syntax
       shell: named-checkconf
       

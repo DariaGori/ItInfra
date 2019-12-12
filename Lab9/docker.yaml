@@ -11,10 +11,12 @@
   become: yes
   roles:
     - mysql
+    - prometheus
 
 - name: Container config
   hosts: host02
   become: yes
   roles:
     - wordpress
+    - grafana
 

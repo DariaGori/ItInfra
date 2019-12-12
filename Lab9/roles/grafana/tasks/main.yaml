@@ -1,0 +1,11 @@
+- name: Download and start Grafana container
+  docker_container:
+    name: grafana-server
+    image: "grafana/grafana"
+    detach: true
+    state: started
+    published_ports:
+      - 3000:3000
+    dns_servers:
+      - "{{ master_ip }}"
+      - "{{ slave_ip }}"

@@ -1,0 +1,44 @@
+- name: Download Prometheus
+  get_url:
+    url: https://github.com/prometheus/prometheus/releases/download/v{{ prom_version }}/prometheus-{{ prom_version }}.linux-amd64.tar.gz
+    dest: /opt/prometheus-{{ prom_version }}.linux-amd64.tar.gz
+
+- name: Create folder for Prometheus
+  file:
+    path: /opt/prometheus
+    state: directory
+    mode: '0755'
+
+- name: Check whether Prometheus file exists
+  stat:
+    path: /opt/prometheus/prometheus.yaml
+  register: prom_file
+
+- name: Untar Prometheus
+  unarchive:
+    src: /opt/prometheus-{{ prom_version }}.linux-amd64.tar.gz
+    dest: /opt/prometheus
+    remote_src: yes
+    extra_opts:
+      - --strip-components=1
+  when: prom_file.stat.exists == false
+
+- name: Configure Prometheus
+  template:
+    src: prometheus.yaml.j2
+    dest: /opt/prometheus/prometheus.yaml
+  notify:
+    - Restart prometheus
+
+- name: Create Prometheus service
+  template: 
+    src: prometheus.service.j2
+    dest: /etc/systemd/system/prometheus.service
+  notify:
+    - Restart systemd
+
+- name: Start service
+  service:
+    name: prometheus
+    state: started
+    enabled: yes

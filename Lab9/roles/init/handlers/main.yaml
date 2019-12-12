@@ -1,0 +1,12 @@
+- name: Apply netplan
+  shell: "netplan apply"
+
+  # Reconfigure all packages
+- name: DPKG
+  shell: "dpkg --configure -a"
+
+- name: Restart systemd
+  service: 
+    name: systemd-resolved
+    state: restarted
+    enabled: yes

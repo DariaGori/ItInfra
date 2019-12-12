@@ -1,0 +1,14 @@
+---
+- name: Initial setup
+  hosts: all_servers
+  become: yes
+  tasks:
+    - name: Remove sudo password request
+      copy: 
+        dest: /etc/sudoers.d/{{ user }}
+        content: "{{ user }} ALL = NOPASSWD: ALL"
+        
+    - name: Place management public keys
+      authorized_key:
+        user: "{{ user }}"
+        key: "{{ lookup('file', '/home/dariagory/.ssh/id_rsa.pub') }}"

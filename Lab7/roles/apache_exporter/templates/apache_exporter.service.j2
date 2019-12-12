@@ -1,0 +1,9 @@
+[Unit]
+Description=Apache Exporter
+
+[Service]
+User={{ apache_user }}
+ExecStart=/usr/local/bin/apache_exporter $OPTIONS
+
+[Install]
+WantedBy=multi-user.target

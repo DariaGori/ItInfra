@@ -1,0 +1,166 @@
+---
+- name: Create users
+  hosts: servers
+  become: yes
+  remote_user: dariagory
+  tasks:
+    - name: Create users for node exporters
+      user:
+        name: "{{ node_user }}"
+        password: "{{ password }}"
+        state: present
+        shell: /bin/bash
+
+    - name: Create Prometheus spec users
+      user:
+        name: "{{ item }}"
+        password: "{{ password }}"
+        state: present
+        shell: /bin/bash
+      loop: "{{ spec_users }}"
+      when: prometheus_role == "manager"
+
+    - name: Remove sudo password request for NEs
+      copy:
+        dest: /etc/sudoers.d/{{ node_user }}
+        content: "{{ node_user }} ALL = NOPASSWD: ALL"
+
+    - name: Remove sudo password request for spec users
+      copy:
+        dest: /etc/sudoers.d/{{ item }}
+        content: "{{ item }} ALL = NOPASSWD: ALL"
+      loop: "{{ spec_users }}"
+      when: prometheus_role == "manager"
+
+    - name: Create .ssh directory for NEs
+      file:
+        path: /home/{{ node_user }}/.ssh
+        state: directory
+        owner: "{{ node_user }}"
+        mode: '0777'
+
+    - name: Create .ssh dir for spec users
+      file:
+        path: /home/{{ item }}/.ssh
+        state: directory
+        owner: "{{ item }}"
+        mode: '0777'
+      loop: "{{ spec_users }}"
+      when: prometheus_role == "manager"
+
+- name: Generate SSH keys on management node
+  hosts: mgm
+  remote_user: dariagory
+  become: yes
+  tasks:
+    - name: Create folders for SSH keys
+      file:
+        path: /home/{{ ans_mgm }}/lab7/files/{{ item }}
+        state: directory
+        owner: "{{ ans_mgm }}"
+        mode: '0777'
+      loop: "{{ folders }}"
+
+    - name: Generate SSH keys
+      command: "ssh-keygen -f /home/{{ ans_mgm }}/lab7/files/{{ item }}/id_rsa -P ''"
+      args:
+        creates:
+          - /home/{{ ans_mgm }}/lab7/files/{{ item }}/id_rsa
+          - /home/{{ ans_mgm }}/lab7/files/{{ item }}/id_rsa.pub
+      loop: "{{ folders }}"
+
+    - name: Change private file permissions
+      file:
+        path: /home/{{ ans_mgm }}/lab7/files/{{ item }}/id_rsa
+        owner: "{{ ans_mgm }}"
+        mode: '0755'
+      loop: "{{ folders }}"
+
+    - name: Push mgm SSH keys
+      template:
+        src: files/ne_mgm/{{ item }}
+        dest: /home/{{ node_user }}/.ssh/{{ item }}
+        mode: '0755'
+        owner: "{{ node_user }}"
+      loop: "{{ keys }}"
+
+- name: Push server01 SSH keys
+  hosts: server01
+  remote_user: dariagory
+  become: yes
+  tasks:
+    - name: Push server01 private keys
+      template: 
+        src: files/{{ item.folder }}/id_rsa
+        dest: /home/{{ item.user }}/.ssh/id_rsa
+        mode: '0755'
+        owner: "{{ item.user }}"
+      loop:
+        - { user: "{{ node_user }}", folder: ne_01 }
+        - { user: "{{ prom_user }}", folder: prom }
+        - { user: "{{ mysql_user }}", folder: mysql }
+
+    - name: Push server01 public keys
+      template:
+        src: files/{{ item.folder }}/id_rsa.pub
+        dest: /home/{{ item.user }}/.ssh/id_rsa.pub
+        mode: '0755'
+        owner: "{{ item.user }}"
+      loop:
+        - { user: "{{ node_user }}", folder: ne_01 }
+        - { user: "{{ prom_user }}", folder: prom }
+        - { user: "{{ mysql_user }}", folder: mysql }
+
+- name: Push server02 SSH keys
+  hosts: server02
+  remote_user: dariagory
+  become: yes
+  tasks:
+    - name: Push server02 keys
+      template:
+        src: files/ne_02/{{ item }}
+        dest: /home/{{ node_user }}/.ssh/{{ item }}
+        mode: '0755'
+        owner: "{{ node_user }}"
+      loop: "{{ keys }}"
+
+- name: Place public keys
+  hosts: servers
+  remote_user: dariagory
+  become: yes
+  tasks:
+    - name: Place keys for NEs
+      authorized_key:
+        user: "{{ node_user }}"
+        key: "{{ lookup('file', '/home/{{ ans_mgm }}/{{ item }}/id_rsa.pub') }}"
+      loop: "{{ keys_place }}"
+
+    - name: Place keys for prom manager
+      authorized_key:
+        user: "{{ prom_user }}"
+        key: "{{ lookup('file', '/home/{{ ans_mgm }}/{{ item }}/id_rsa.pub') }}"
+      loop: "{{ keys_place }}"
+      when: prometheus_role == "manager"
+
+    - name: Place keys for mysql
+      authorized_key:
+        user: "{{ mysql_user }}"
+        key: "{{ lookup('file', '/home/{{ ans_mgm }}/{{ item }}/id_rsa.pub') }}"
+      loop: "{{ keys_place }}"
+      when: prometheus_role == "manager"
+
+    - name: Change .ssh perm for NEs
+      file:
+        path: /home/{{ node_user }}/.ssh
+        state: directory
+        owner: "{{ node_user }}"
+        mode: '0755'
+
+    - name: Change .ssh perm for spec users
+      file:
+        path: /home/{{ item }}/.ssh
+        state: directory
+        owner: "{{ item }}"
+        mode: '0755'
+      loop: "{{ spec_users }}"
+      when: prometheus_role == "manager"

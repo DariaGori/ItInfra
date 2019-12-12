@@ -1,0 +1,27 @@
+---
+- name: Node exporter
+  hosts: servers
+  remote_user: prometheus
+  become: yes
+  roles:
+    - node_exporter
+
+- name: Prometheus
+  hosts: prometheus
+  become: yes
+  roles:
+    - prometheus
+    - grafana
+
+- name: MySQL and Apache exporters
+  hosts: mysql
+  become: yes
+  roles:
+    - mysql_exporter  
+    - apache_exporter
+
+- name: Bind exporter
+  hosts: bind
+  become: yes
+  roles:
+    - bind_exporter

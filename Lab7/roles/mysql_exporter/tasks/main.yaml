@@ -1,0 +1,72 @@
+- name: Install MySQL server
+  apt:
+    name: mysql-server
+    state: present
+
+- name: Install PyMySQL packages
+  apt: 
+    name: ["python-pymysql", "python3-pymysql"]
+    state: present
+  become: yes
+
+- name: Start MySQL service
+  service:
+    name: mysql
+    state: started
+    enabled: true
+
+- name: Create Prometheus user for DB
+  mysql_user:
+    name: "{{ mysql_user }}"
+    password: "{{ password }}"
+    host: "{{ mysql_host }}"
+    login_host: "{{ login_host }}"
+    priv: '*.*:ALL'
+    state: present
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+
+- name: Bind MySQL to WP
+  ini_file:
+    dest: /etc/mysql/mysql.conf.d/mysqld.conf
+    section: mysqld
+    option: "bind-address"
+    value: "{{ bind_address }}"
+  notify:
+    - Restart MySQL
+
+- name: Check if exporter file exists
+  stat:
+    path: /opt/mysqld_exporter-{{ exp_version }}.linux-amd64.tar.gz
+  register: result
+
+- name: Download MySQL exporter
+  get_url:
+    url: https://github.com/prometheus/mysqld_exporter/releases/download/v{{ exp_version }}/mysqld_exporter-{{ mysql_version }}.linux-amd64.tar.gz
+    dest: /opt/
+  when: result.stat.exists == false
+
+- name: Create mysql exporter folder
+  file:
+    path: /opt/mysql_exporter
+    state: directory
+    mode: '0755'
+    owner: "{{ mysql_user }}"
+
+- name: Untar MySQL exporter
+  unarchive:
+    src: /opt/mysqld_exporter-{{ exp_version }}.linux-amd64.tar.gz
+    dest: /opt/mysql_exporter
+    remote_src: yes
+    extra_opts:
+      - --strip-components=1
+
+- name: Create MySQL exporter service
+  template: 
+    src: mysqld_exporter.service.j2
+    dest: /etc/systemd/system/mysqld_exporter.service
+
+- name: Start and enable Mysql exporter
+  service:
+    name: mysqld_exporter
+    state: started
+    enabled: yes

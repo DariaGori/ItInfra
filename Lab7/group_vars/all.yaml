@@ -1,0 +1,36 @@
+---
+  password: !vault |
+        $ANSIBLE_VAULT;1.1;AES256
+        31656530373835303063353461393063303833613062326666356665666463383534316535333362
+        3037383939353631373163383962643530393736336361660a393563343834356331303463653463
+        32376531343533656464623731316666626639386364633335393833613830613532633430323761
+        3666393764306430660a353333663366326632636139356137313062613631626133636533303462
+        3131
+
+  node_user: prometheus
+  ans_mgm: dariagory
+  prom_user: prom_manager
+  mysql_user: mysql_user
+
+  spec_users:
+    - prom_manager
+    - mysql_user
+
+  folders:
+    - ne_01
+    - ne_02
+    - ne_mgm
+    - prom
+    - mysql
+
+  keys:
+    - id_rsa
+    - id_rsa.pub
+
+  keys_place:
+    - .ssh
+    - lab7/files/ne_01
+    - lab7/files/ne_02
+    - lab7/files/ne_mgm
+    - lab7/files/prom
+    - lab7/files/mysql

@@ -1,7 +1,7 @@
 cd ansible
 nano init.yml
 
-ssh-copy-id dariagory@10.0.2.7
+ssh-copy-id dariagory@192.168.56.102
 
 echo "nameserver 8.8.8.8" | sudo tee /etc/resolv.conf > /dev/null
 

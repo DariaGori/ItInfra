@@ -1,0 +1,3 @@
+---
+backup_role: ansible
+key_file: id_rsa_mgm

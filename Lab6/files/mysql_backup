@@ -1,6 +1,6 @@
-0 1 * * *	root	mysqldump {{ db_name}} > /var/backup/mysql.{{ db_name }}.sql
+10 1 * * *    root    mysqldump {{ db_name}} > /var/backup/mysql.{{ db_name }}.sql
 
-10 1 * * 0	{{ user }}	duplicity --no-encryption full /var/backup/mysql.{{ db_name }}.sql rsync://{{ bserver }}//srv/backup/mysql_db/
+05 1 * * 1    {{ user }}    duplicity --no-encryption full /var/backup/mysql.{{ db_name }}.sql rsync://{{ bserver }}//srv/backup/mysql_db/
 
-5 1 * * 1-6	{{ user }}	duplicity --no-encryption incremental /var/backup/mysql.{{ db_name }}.sql rsync://{{ bserver }}//srv/backup/mysql_db/
+05 1 * * 1-6    {{ user }}    duplicity --no-encryption incremental /var/backup/mysql.{{ db_name }}.sql rsync://{{ bserver }}//srv/backup/mysql_db/
 

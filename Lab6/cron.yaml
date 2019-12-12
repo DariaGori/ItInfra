@@ -1,0 +1,19 @@
+---
+- name: Set cron schedule for MySQL backup
+  hosts: server01
+  become: yes
+  tasks:
+    - name: Place schedule
+      template:
+        src: files/mysql_backup
+        dest: /etc/cron.d/mysql_backup
+
+
+- name: Set cron schedule for ansible files backup
+  hosts: ansible_mgm
+  become: yes
+  tasks:
+    - name: Place schedule
+      template:
+        src: files/ansible_backup
+        dest: /etc/cron.d/ansible_backup

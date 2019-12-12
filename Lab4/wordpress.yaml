@@ -1,0 +1,101 @@
+---
+- name: Configuring frontend
+  hosts: frontend_servers
+  remote_user: dariagory
+  become: yes
+  tasks:
+  - name: Remove sudo password request
+    copy: 
+      dest: /etc/sudoers.d/dariagory
+      content: "dariagory ALL = NOPASSWD: ALL"
+
+  - name: Install Apache
+    apt: name=apache2 update_cache=yes state=latest
+
+  - name: Install PHP and MySQL module
+    apt: 
+      name: 
+        - php
+        - php-mysql
+      update_cache: yes
+      state: latest
+
+  - name: Install PHP module for Apache
+    apt: name=libapache2-mod-php update_cache=yes state=latest
+
+  - name: Set custom port
+    copy: 
+      src: ports.conf
+      dest: /etc/apache2/ports.conf
+    notify:
+      - Restart Apache
+
+  - name: Add config for port 8080
+    copy: 
+      src: 8080-default.conf
+      dest: /etc/apache2/sites-enabled/
+    notify:
+      - Restart Apache
+    
+  - name: Download WordPress
+    get_url: 
+      url: https://wordpress.org/latest.tar.gz
+      dest: /tmp/wordpress.tar.gz
+      validate_certs: no
+
+  - name: Extract WordPress
+    unarchive:
+      src: /tmp/wordpress.tar.gz
+      dest: /var/www/
+      copy: no
+      creates: /var/www/wordpress
+
+  - name: Update Apache site 
+    template:
+      src: 000-default.conf.j2 
+      dest: /etc/apache2/sites-enabled/000-default.conf
+    notify:
+      - Restart Apache
+
+  - name: Create a file for config copy
+    file:
+      path: /home/dariagory/lab4/wp-config-temp.php.j2
+      state: touch
+      owner: dariagory
+      group: dariagory
+      mode: 0775
+
+  - name: Copy WP config to config file
+    template:
+      src: /home/dariagory/lab4/wp-config-temp.php.j2
+      dest: /var/www/wordpress/wp-config.php
+
+  handlers:
+  - name: Restart Apache
+    service: name=apache2 state=restarted
+
+- name: DB configuration
+  hosts: database_servers
+  remote_user: dariagory
+  become: yes
+  tasks:
+  - name: Install packages for MySQL
+    apt:
+      name:
+        - python-mysqldb
+        - mysql-server
+        - mysql-client
+      update_cache: yes
+      state: latest
+
+  - name: Create a DB
+    mysql_db:
+      name: "{{ db_name }}"
+      state: present
+
+  - name: Create a DB user
+    mysql_user: 
+      name: "{{ db_user }}"
+      password: "{{ password }}"
+      priv: '*.*:ALL'
+      state: present

@@ -1,0 +1,42 @@
+---
+forwarders:
+  - 8.8.8.8
+  - 1.1.1.1
+  - 9.9.9.10
+
+localnets:
+  - 192.168.56.0/24
+  - 10.0.2.0/24
+  - localhost
+
+records:
+  - type: NS
+    entries:
+      - name: syster.ttu.
+        address: host01.syster.ttu.
+      - name: syster.ttu.
+        address: host02.syster.ttu.
+  - type: A
+    entries:
+      - name: host01.syster.ttu.
+        address: 192.168.56.102
+      - name: host02.syster.ttu.
+        address: 192.168.56.103
+      - name: hosts.syster.ttu.
+        addresses:
+          - 192.168.56.102
+          - 192.168.56.103
+  - type: CNAME
+    entries:
+      - name: ns
+        address: hosts
+      - name: ns1
+        address: host01
+      - name: ns2
+        address: host02
+  - type: PTR
+    entries:
+      - name: 102
+        address: host01.syster.ttu.
+      - name: 103
+        address: host02.syster.ttu.

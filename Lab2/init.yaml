@@ -1,0 +1,55 @@
+---
+- name: Specifying destination hosts
+  hosts: ubuntu
+  remote_user: dariagory
+  become: yes
+  tasks:
+
+  - name: Create SSH password
+    authorized_key: 
+      user: dariagory
+      state: present
+      key: "{{ lookup('file', '/home/dariagory/.ssh/id_rsa.pub') }}"
+
+  - name: Remove sudo psw request
+    copy:
+      dest: /etc/sudoers.d/dariagory
+      content: "dariagory ALL = NOPASSWD: ALL"
+
+  - name: Create sysadmins group
+    group: 
+      name: sysadmins
+      state: present
+
+  - name: Add user romankuchin
+    user:
+      name: romankuchin
+      groups: sysadmins
+      shell: /bin/bash
+
+  - name: Import GitHub SSH key for romankuchin
+    authorized_key:
+      user: romankuchin
+      state: present
+      key: https://github.com/romankuchin.keys
+  
+  - name: Add user hudolejev
+    user: 
+      name: hudolejev
+      groups: sysadmins
+      shell: /bin/bash
+
+  - name: Import GitHub SSH key for hudolejev
+    authorized_key:
+      user: hudolejev
+      state: present
+      key: https://github.com/hudolejev.keys
+
+  - name: Show process list
+    command: "ps"
+    register: proc
+  
+  - name: Show output
+    debug:
+      var: proc.stdout_lines 
+    

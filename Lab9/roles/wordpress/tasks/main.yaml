@@ -1,0 +1,28 @@
+- name: Get Docker and python pip packages
+  apt:
+    name: ['python-pip', 'docker.io']
+    state: latest
+
+- name: Pip install Docker
+  pip:
+    name: 
+      - docker
+      - requests>={{ requests_version }}
+
+- name: Docker WP
+  docker_container:
+    name: wordpress
+    image: wordpress:latest
+    detach: true
+    published_ports:
+      # ContainerPort:HostPort
+      - 8080:80 
+    env:
+      WORDPRESS_DB_HOST=mysql.syster.ttu:3306,
+      WORDPRESS_DB_NAME={{ db_name }},
+      WORDPRESS_DB_USER={{ mysql_user }},
+      WORDPRESS_DB_PASSWORD={{ password }}
+    dns_servers:
+      - 192.168.56.102
+      - 192.168.56.103
+

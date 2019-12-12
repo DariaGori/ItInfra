@@ -1,0 +1,46 @@
+- name: Get bind
+  apt:
+    package: bind9
+
+- name: Configure bind
+  template:
+    src: named.conf.options.j2
+    dest: /etc/bind/named.conf.options
+  notify:
+    - Restart bind
+    - Check config
+
+- name: Configure bind.local
+  template:
+    src: named.conf.local.j2
+    dest: /etc/bind/named.conf.local
+  notify:
+    - Check config
+    - Restart bind
+
+- name: Hash DB
+  copy:
+    content: "{{ records|hash }}"
+    dest: /etc/bind/db.syster.hash
+  when: dns_role == "master"
+  notify:
+    - Get timestamp
+    - Upload bind zone
+    - Configure DB pointer
+    - Restart bind
+    - Bind reload DB
+  tags:
+    - j
+
+- name: Start bind
+  service:
+    name: bind9
+    state: started
+    enabled: yes
+
+- name: Fix resolv.conf
+  template:
+    src: resolv.conf.j2
+    dest: /etc/resolv.conf
+    mode: '0755'
+

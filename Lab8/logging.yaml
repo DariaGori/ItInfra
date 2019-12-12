@@ -1,0 +1,23 @@
+---
+- name: Set up Bind
+  become: yes
+  hosts: bind
+  roles: 
+    - bind
+    - init
+  tags:
+    - b
+
+- name: Set up InfluxDB
+  become: yes
+  hosts: host02
+  roles:
+    - influxdb
+
+- name: Set up Grafana
+  become: yes
+  hosts: host01
+  roles:
+    - grafana
+  tags:
+    - g

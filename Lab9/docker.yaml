@@ -1,0 +1,20 @@
+---
+- name: Initial config
+  hosts: servers
+  become: yes
+  roles:
+    - init
+    - bind
+
+- name: Service config
+  hosts: host01
+  become: yes
+  roles:
+    - mysql
+
+- name: Container config
+  hosts: host02
+  become: yes
+  roles:
+    - wordpress
+

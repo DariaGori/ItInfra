@@ -1,0 +1,3 @@
+---
+backup_role: mysql
+key_file: id_rsa_agent

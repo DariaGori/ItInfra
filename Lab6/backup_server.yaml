@@ -1,0 +1,69 @@
+---
+- name: Backup server setup
+  hosts: server02
+  become: yes
+  tasks:
+    - name: Create user for backups
+      user:
+        name: "{{ user }}"
+        password: "{{ password }}"
+        state: present
+        shell: /bin/bash
+    
+    - name: Create .ssh dir
+      file:
+        path: /home/{{ user }}/.ssh
+        state: directory
+        owner: "{{ user }}"
+        mode: '0755'
+    
+    - name: Create known hosts file
+      file: 
+        path: /home/{{ user }}/.ssh/known_hosts
+        state: touch
+        owner: "{{ user }}"
+        mode: '0755'
+        
+    - name: Copy private key
+      template:
+        src: files/id_rsa_bserver
+        dest: /home/{{ user }}/.ssh/id_rsa
+        
+    - name: Copy public key
+      template:
+        src: files/id_rsa_bserver.pub
+        dest: /home/{{ user }}/.ssh/id_rsa.pub
+        
+    - name: Place local key
+      authorized_key:
+        user: "{{ user }}"
+        key: "{{ lookup('file', './files/id_rsa_bserver.pub') }}"
+        
+    - name: Place agent's key
+      authorized_key:
+        user: "{{ user }}"
+        key: "{{ lookup('file', 'files/id_rsa_agent.pub') }}"
+        
+    - name: Create dir for backups
+      file:
+        path: /srv/backup
+        state: directory
+        owner: "{{ user }}"
+        mode: '0755'
+        
+    - name: Create dirs for different backups
+      file:
+        path: /srv/backup/{{ item.foldername }}
+        state: directory
+        owner: "{{ user }}"
+        mode: '0755'
+      with_items: "{{ backup_folders }}"
+      
+    - name: Create subfolders for ansible setup blocks
+      file:
+        path: /srv/backup/ansible/{{ item.foldername }}
+        state: directory
+        owner: "{{ user }}"
+        mode: '0755'
+      with_items: "{{ ansible_folders }}"
+  

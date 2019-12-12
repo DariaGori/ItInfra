@@ -1,0 +1,7 @@
+---
+exp_version: 0.12.1
+mysql_version: 0.12.1
+mysql_user: mysql_user
+mysql_host: 192.168.56.102
+login_host: 192.168.56.102
+bind_address: 0.0.0.0

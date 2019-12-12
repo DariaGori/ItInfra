@@ -1,0 +1,11 @@
+- name: Restart apache
+  service: name=apache2 state=restarted
+
+- name: Reload systemd
+  shell: "systemctl daemon-reload"
+
+- name: Start apache_exporter
+  service:
+    name: apache_exporter
+    state: started
+    enabled: yes

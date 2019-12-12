@@ -1,0 +1,67 @@
+---
+- name: Set up backup agent
+  hosts: agents
+  become: yes
+  tasks:
+    - name: Create a new user for backups
+      user: 
+        name: "{{ user }}"
+        password: "{{ password }}"
+        state: present
+        groups: bind
+        append: yes
+        shell: /bin/bash
+        
+    - name: Create .ssh dir
+      file:
+        path: /home/{{ user }}/.ssh
+        state: directory
+        owner: "{{ user }}"
+        mode: '0755'
+        
+    - name: Create known hosts file
+      file: 
+        path: /home/{{ user }}/.ssh/known_hosts
+        state: touch
+        owner: "{{ user }}"
+        mode: '0755'
+        
+    - name: Copy private key to MySQL node
+      template:
+        src: files/{{ key_file }}
+        dest: /home/{{ user }}/.ssh/id_rsa
+      when: backup_role == "mysql"
+      
+    - name: Copy private key to Ansible node
+      template:
+        src: files/{{ key_file }}
+        dest: /home/{{ user }}/.ssh/id_rsa
+      when: backup_role == "ansible"
+        
+    - name: Copy public key to MySQL node
+      template:
+        src: files/{{ key_file }}.pub
+        dest: /home/{{ user }}/.ssh/id_rsa.pub
+      when: backup_role == "mysql"
+      
+    - name: Copy public key to Ansible node
+      template:
+        src: files/{{ key_file }}.pub
+        dest: /home/{{ user }}/.ssh/id_rsa.pub
+      when: backup_role == "ansible"
+      
+    - name: Place server's public key
+      authorized_key:
+        user: "{{ user }}"
+        key: "{{ lookup('file', './files/id_rsa_bserver.pub') }}"
+        
+    - name: Install duplicity
+      package: name=duplicity state=present
+      
+    - name: Create /var/backup
+      file:
+        path: /var/backup
+        state: directory
+        owner: "{{ user }}"
+        mode: '0755'
+      when: backup_role == "mysql"

@@ -1,0 +1,3 @@
+---
+apache_user: mysql_user
+go_version: 1.13.3

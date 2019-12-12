@@ -1,0 +1,24 @@
+- name: Get timestamp
+  shell: "date +%s"
+  register: timestamp
+
+- name: Upload bind zone
+  template:
+    src: db.syster.j2
+    dest: /etc/bind/db.syster
+    mode: '0755'
+
+- name: Configure DB pointer
+  template:
+    src: db.syster.ptr.j2
+    dest: /etc/bind/db.syster.ptr
+  when: dns_role == "master"
+
+- name: Check config
+  shell: "named-checkconf"
+  
+- name: Bind reload DB
+  shell: "rndc reload"
+
+- name: Restart bind
+  service: name=bind9 state=restarted

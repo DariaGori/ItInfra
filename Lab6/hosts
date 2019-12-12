@@ -1,8 +1,8 @@
-[servers]
-server01 ansible_host=10.0.2.7 ansible_user=dariagory
-server02 ansible_host=10.0.2.8 ansible_user=dariagory
+[agents]
+server01 ansible_host=192.168.56.102 ansible_user=dariagory
+ansible_mgm ansible_host=127.0.0.1 ansible_user=dariagory
 
-[backup]
-bagent ansible_host=10.0.2.7 ansible_user=backup_user
-bserver ansible_host=10.0.2.8 ansible_user=backup_user
+[all_servers]
+server01 ansible_host=192.168.56.102 ansible_user=dariagory
+server02 ansible_host=192.168.56.103 ansible_user=dariagory
 ansible_mgm ansible_host=127.0.0.1 ansible_user=dariagory

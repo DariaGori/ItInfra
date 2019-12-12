@@ -1,0 +1,18 @@
+- name: Install dependencies
+  apt:
+    package: ['adduser', 'libfontconfig1']
+
+- name: Download Grafana
+  get_url:
+    url: https://dl.grafana.com/oss/release/grafana_{{ graf_version }}_amd64.deb
+    dest: /opt/grafana_{{ graf_version }}_amd64.deb
+
+- name: Install Grafana
+  apt:
+    deb: /opt/grafana_{{ graf_version }}_amd64.deb
+
+- name: Start Grafana
+  service:
+    name: grafana-server
+    state: started
+    enabled: yes

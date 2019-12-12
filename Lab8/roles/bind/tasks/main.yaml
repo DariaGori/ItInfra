@@ -1,0 +1,100 @@
+- name: Get bind
+  apt:
+    package: bind9
+
+- name: Configure bind
+  template:
+    src: named.conf.options.j2
+    dest: /etc/bind/named.conf.options
+  notify:
+    - Restart bind
+    - Check config
+
+- name: Configure bind.local
+  template:
+    src: named.conf.local.j2
+    dest: /etc/bind/named.conf.local
+  notify:
+    - Check config
+    - Restart bind
+
+- name: Hash DB
+  copy:
+    content: "{{ records|hash }}"
+    dest: /etc/bind/db.syster.hash
+  when: dns_role == "master"
+  notify:
+    - Get timestamp
+    - Upload bind zone
+    - Configure DB pointer
+    - Restart bind
+    - Bind reload DB
+  tags:
+    - j
+
+- name: Check if go file exists
+  stat:
+    path: /opt/go{{ go_version }}.linux-amd64.tar.gz
+  register: result
+
+- name: Download go
+  get_url:
+    url: https://dl.google.com/go/go{{ go_version }}.linux-amd64.tar.gz
+    dest: /opt/go{{ go_version }}.linux-amd64.tar.gz
+
+- name: Create folder for go
+  file:
+    path: /opt/go
+    state: directory
+    mode: '0755'
+
+- name: Untar go
+  unarchive:
+    src: /opt/go{{ go_version }}.linux-amd64.tar.gz
+    dest: /opt/go
+    remote_src: yes
+  when: result.stat.exists == false
+
+- name: Create a symbolic link
+  file:
+    src: /opt/go/go/bin/go
+    dest: /usr/local/bin/go
+    state: link
+
+- name: Check if the file exists
+  stat: 
+    path: /root/go/src/github.com/digitalocean/bind_exporter/bind_exporter.go
+  register: st_result
+
+- name: Go get bind_exporter
+  shell: "go get github.com/digitalocean/bind_exporter"
+  when: st_result.stat.exists == false
+
+- name: Copy binaries
+  copy:
+    src: /root/go/bin/bind_exporter
+    dest: /usr/local/bin/bind_exporter
+    mode: '0755'
+    remote_src: yes
+
+- name: Create bind_exporter service
+  template:
+    src: bind_exporter.service.j2
+    dest: /etc/systemd/system/bind_exporter.service
+    mode: '0755'
+
+- name: Start bind_exporter
+  service:
+    name: "{{ item }}"
+    state: started
+    enabled: yes
+  with_items:
+    - bind9
+    - bind_exporter
+
+- name: Fix resolv.conf
+  template:
+    src: resolv.conf.j2
+    dest: /etc/resolv.conf
+    mode: '0755'
+

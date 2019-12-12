@@ -1,3 +1,6 @@
 [dns]
-host01 ansible_host=10.0.2.7
-host02 ansible_host=10.0.2.8
+host01 ansible_host=192.168.56.102
+host02 ansible_host=192.168.56.103
+
+[servers]
+host03 ansible_host=127.0.0.1

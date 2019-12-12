@@ -1,0 +1,61 @@
+- name: Create Prometheus folder
+  file:
+    path: /opt/prometheus
+    state: directory
+    mode: '0755'
+    owner: "{{ prom_user }}"
+
+- name: Create tsdb folder
+  file:
+    path: /var/lib/prometheus
+    state: directory
+    mode: '0755'
+    owner: "{{ prom_user }}"
+
+- name: Check if prometheus file exists
+  stat:
+    path: /opt/prometheus/prometheus.yml
+  register: prom_file
+
+- name: Download prometheus
+  get_url:
+    url: https://github.com/prometheus/prometheus/releases/download/v{{ prom_version }}/prometheus-{{ prom_version }}.linux-amd64.tar.gz
+    dest: /opt/prometheus-{{ prom_version }}.linux-amd64.tar.gz
+    owner: "{{ prom_user }}"
+  when: prom_file.stat.exists == false
+  notify:
+    - Untar prometheus
+
+- name: Copy prometheus to /usr/local/bin
+  shell: "sudo cp -rp /opt/prometheus/prometheus /usr/local/bin/"  
+
+- name: Copy promtool bin 
+  shell: "sudo cp -rp /opt/prometheus/promtool /usr/local/bin"
+
+- name: Configure prometheus
+  template:
+    src: prometheus.yaml.j2
+    dest: /opt/prometheus/prometheus.yml
+    mode: '0755'
+    owner: "{{ prom_user }}"
+  notify:
+    - Restart prometheus
+  tags: 
+    - p
+
+- name: Create prometheus service
+  template:
+    src: prometheus.service.j2
+    dest: /etc/systemd/system/prometheus.service
+    mode: '0755'
+    owner: "{{ prom_user }}"
+  notify:
+    - Restart systemd
+    - Restart prometheus
+
+- name: Start and enable prometheus
+  service:
+    name: prometheus
+    state: started
+    enabled: yes
+

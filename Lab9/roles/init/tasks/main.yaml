@@ -1,0 +1,8 @@
+- name: Interface setup
+  template:
+    src: enp0s8.yaml.j2
+    dest: /etc/netplan/55-enp0s8.yaml
+  notify:
+    - Apply netplan
+    - DPKG
+    - Restart systemd

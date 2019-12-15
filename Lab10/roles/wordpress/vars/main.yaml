@@ -1,4 +1,6 @@
 ---
+  requests_version: 2.20.1
+
   password: !vault |
         $ANSIBLE_VAULT;1.1;AES256
         31656530373835303063353461393063303833613062326666356665666463383534316535333362
@@ -9,6 +11,6 @@
 
   db_name: wordpress
   mysql_user: wp_user
-  mysql_host: 192.168.56.103
-  login_host: 192.168.56.102
 
+  master_ip: 192.168.56.102
+  slave_ip: 192.168.56.103

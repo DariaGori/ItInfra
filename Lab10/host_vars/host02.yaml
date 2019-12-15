@@ -1,0 +1,6 @@
+---
+dns_role: slave
+master_ip: 192.168.56.102
+
+wp_containers: [1, 2, 3]
+wp_active_count: 3

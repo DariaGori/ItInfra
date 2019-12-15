@@ -11,4 +11,3 @@
   mysql_user: wp_user
   mysql_host: 192.168.56.103
   login_host: 192.168.56.102
-

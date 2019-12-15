@@ -20,11 +20,15 @@ jobs:
       - host01.syster.ttu
       - host02.syster.ttu
 
-  - name: bind
+  - name: bind-slave
+    port: 9119
+    targets:
+      - ns2.syster.ttu
+
+  - name: bind-master
     port: 9119
     targets:
       - ns1.syster.ttu
-      - ns2.syster.ttu
 
   - name: mysql
     port: 9104

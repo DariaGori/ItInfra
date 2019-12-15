@@ -31,11 +31,11 @@ records:
           - 192.168.56.103
   - type: CNAME
     entries:
-      - name: ns.syster.ttu.
+      - name: ns
         address: hosts
-      - name: ns1.syster.ttu.
+      - name: ns1
         address: host01
-      - name: ns2.syster.ttu.
+      - name: ns2
         address: host02
       - name: web
         address: host01

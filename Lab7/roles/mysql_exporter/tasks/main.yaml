@@ -24,6 +24,11 @@
     priv: '*.*:ALL'
     state: present
     login_unix_socket: /var/run/mysqld/mysqld.sock
+    
+- name: Add user config file
+  template:
+    src: mysqld_exporter.cnf.j2
+    dest: /etc/.mysqld_exporter.cnf
 
 - name: Bind MySQL to WP
   ini_file:
@@ -41,7 +46,7 @@
 
 - name: Download MySQL exporter
   get_url:
-    url: https://github.com/prometheus/mysqld_exporter/releases/download/v{{ exp_version }}/mysqld_exporter-{{ mysql_version }}.linux-amd64.tar.gz
+    url: https://github.com/prometheus/mysqld_exporter/releases/download/v{{ exp_version }}/mysqld_exporter-{{ exp_version }}.linux-amd64.tar.gz
     dest: /opt/
   when: result.stat.exists == false
 

@@ -1,0 +1,40 @@
+- name: Check that the file exists
+  stat:
+    path: /opt/apache_exporter-{{apache_exp_version}}.linux-amd64.tar.gz
+  register: stat_result
+
+- name: Download apache exporter
+  get_url:
+    url: https://github.com/Lusitaniae/apache_exporter/releases/download/v{{apache_exp_version}}/apache_exporter-{{apache_exp_version}}.linux-amd64.tar.gz
+    dest: /opt/
+  when: stat_result.stat.exists == False
+
+- name: Create folder for exporter
+  file:
+    path: /opt/apache_exporter
+    state: directory
+    mode: '0755'
+
+- name: Create user for exporter
+  user:
+    name: "{{ apache_exp_user }}"
+    password: "{{ password }}"
+    state: present
+    shell: /bin/bash
+
+- name: Unarchive apache exporter
+  unarchive:
+    src: /opt/apache_exporter-{{apache_exp_version}}.linux-amd64.tar.gz
+    dest: /opt/apache_exporter
+    remote_src: yes
+
+- name: systemd apache_exporter
+  template:
+    src: apache_exporter.service.j2
+    dest: /etc/systemd/system/apache_exporter.service
+
+- name: start exporter
+  service:
+    name: apache_exporter
+    state: started
+    enabled: yes

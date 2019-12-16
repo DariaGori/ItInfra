@@ -1,0 +1,43 @@
+- name: Check if node_exporter exists
+  stat:
+    path: /opt/node_exporter-{{ exp_version }}.linux-amd64.tar.gz
+  register: exporter_file
+
+- name: Download exporter file
+  get_url:
+    url: https://github.com/prometheus/node_exporter/releases/download/v{{ exp_version }}/node_exporter-{{ exp_version }}.linux-amd64.tar.gz
+    dest: /opt/
+  when: exporter_file.stat.exists == false
+
+- name: Create folder for exporter
+  file:
+    path: /opt/node_exporter
+    state: directory
+    mode: '0755'
+
+- name: Untar node_exporter
+  unarchive:
+    src: /opt/node_exporter-{{ exp_version }}.linux-amd64.tar.gz
+    dest: /opt/node_exporter
+    remote_src: yes
+    extra_opts:
+      - --strip-components=1
+
+- name: Create node exporter user
+  user:
+    name: "{{ node_exp_user }}"
+    password: "{{ password }}"
+    state: present
+    shell: /bin/bash
+
+- name: Make node_exporter a service
+  template:
+    src: node_exporter.service.j2
+    dest: /etc/systemd/system/node_exporter.service
+    mode: '0755'
+
+- name: Enable and start node_exporter
+  service: 
+    name: node_exporter
+    state: started
+    enabled: yes

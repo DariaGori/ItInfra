@@ -1,0 +1,57 @@
+- name: Check if exporter file exists
+  stat:
+    path: /opt/mysqld_exporter-{{ exp_version }}.linux-amd64.tar.gz
+  register: result
+
+- name: Download MySQL exporter
+  get_url:
+    url: https://github.com/prometheus/mysqld_exporter/releases/download/v{{ exp_version }}/mysqld_exporter-{{ exp_version }}.linux-amd64.tar.gz
+    dest: /opt/
+  when: result.stat.exists == false
+
+- name: Create mysql exporter folder
+  file:
+    path: /opt/mysql_exporter
+    state: directory
+    mode: '0755'
+
+- name: Untar MySQL exporter
+  unarchive:
+    src: /opt/mysqld_exporter-{{ exp_version }}.linux-amd64.tar.gz
+    dest: /opt/mysql_exporter
+    remote_src: yes
+    extra_opts:
+      - --strip-components=1
+
+- name: Create exporter user
+  user: 
+    name: "{{ mysql_exp_user }}"
+    password: "{{ password }}"
+    state: present
+    shell: /bin/bash
+
+- name: Add MySQL user for exporter
+  mysql_user:
+    name: "{{ mysql_exp_user }}"
+    password: "{{ password }}"
+    host: "{{ mysql_host }}"
+    login_host: "{{ login_host }}"
+    priv: '*.*:ALL'
+    state: present
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+
+- name: Add user config
+  template: 
+    src: my.cnf.j2
+    dest: /home/{{ mysql_exp_user }}/.my.cnf
+
+- name: Create MySQL exporter service
+  template: 
+    src: mysqld_exporter.service.j2
+    dest: /etc/systemd/system/mysqld_exporter.service
+
+- name: Start and enable Mysql exporter
+  service:
+    name: mysqld_exporter
+    state: started
+    enabled: yes

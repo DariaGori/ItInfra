@@ -1,0 +1,38 @@
+---
+- name: Configure DNS, syslog and node exporters
+  hosts: dns
+  become: yes
+  roles:
+    - bind
+    - syslog
+    - node_exporter
+  tags:
+    - bsn
+
+- name: Configure MySQL and InfluxDB
+  hosts: host01
+  become: yes
+  roles:
+    - mysql
+    - mysql_exporter
+    - influxdb
+  tags:
+    - mi
+
+- name: Configure Prometheus and Grafana
+  hosts: host01
+  become: yes
+  roles:
+    - prometheus
+    - grafana
+  tags:
+    - prom
+
+- name: Wordpress
+  hosts: host02
+  become: yes
+  roles:
+    - wordpress
+    - haproxy
+  tags:
+    - wh

@@ -1,0 +1,8 @@
+[servers]
+mgm ansible_host=192.168.100.101 ansible_user=dariagory
+host01 ansible_host=192.168.100.102 ansible_user=dariagory
+host02 ansible_host=192.168.100.103 ansible_user=dariagory
+
+[dns]
+host01 ansible_host=192.168.100.102 ansible_user=dariagory
+host02 ansible_host=192.168.100.103 ansible_user=dariagory

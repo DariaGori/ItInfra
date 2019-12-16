@@ -1,0 +1,38 @@
+---
+- name: Initial setup
+  hosts: servers
+  become: yes
+  tasks:
+    - name: Remove sudo password request
+      copy:
+        dest: /etc/sudoers.d/dariagory
+        content: "dariagory ALL = NOPASSWD: ALL"
+
+    - name: Push management SSH keys
+      authorized_key:
+        user: dariagory
+        key: "{{ lookup('file', '/home/dariagory/.ssh/id_rsa.pub') }}"
+
+    - name: Setup network interface
+      template:
+        src: files/enp0s8.yaml.j2
+        dest: /etc/netplan/55-enp0s8.yaml
+      notify:
+        - Apply netplan
+        - Restart systemd
+
+    - name: Tie mgm to DNS
+      template:
+        src: roles/bind/templates/resolv.conf.j2
+        dest: /etc/resolv.conf
+      when: dns_role == "none"
+
+  handlers:
+    - name: Apply netplan
+      shell: "netplan apply"
+   
+    - name: Restart systemd
+      service:
+        name: systemd-resolved
+        state: restarted
+        enabled: yes

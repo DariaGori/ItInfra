@@ -1,0 +1,3 @@
+docker_container:
+detach - Enable detached mode to leave the container running in background.
+restart_policy - 

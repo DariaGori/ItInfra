@@ -13,12 +13,14 @@ localnets:
   - localhost
 
 records:
+# NameServers
   - type: NS
     entries:
       - name: syster.ttu.
         address: host01.syster.ttu.
       - name: syster.ttu.
         address: host02.syster.ttu.
+# IPv4
   - type: A
     entries:
       - name: host01.syster.ttu.
@@ -29,6 +31,7 @@ records:
         addresses:
           - 192.168.100.102
           - 192.168.100.103
+# Canonical name
   - type: CNAME
     entries:
       - name: ns
@@ -47,6 +50,7 @@ records:
         address: host01
       - name: influxdb
         address: host01
+# Pointer
   - type: PTR
     entries:
       - name: 102

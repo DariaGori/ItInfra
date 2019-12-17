@@ -12,6 +12,7 @@
   notify: 
     - Restart apache
 
+# Set root folder
 - name: Add config
   copy:
     src: 8080-php.conf.j2

@@ -36,6 +36,7 @@ defaults
         errorfile 503 /etc/haproxy/errors/503.http
         errorfile 504 /etc/haproxy/errors/504.http
 
+# Listen on www.syster.ttu:80, forward to server section
 listen www.syster.ttu
     bind :80
 {% for cont_num in wp_containers[:wp_active_count] %}

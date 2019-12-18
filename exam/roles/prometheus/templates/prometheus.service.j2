@@ -1,0 +1,16 @@
+[Unit]
+Description=Prometheus
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User={{ user }}
+Type=simple
+ExecStart=/opt/prometheus/prometheus-{{ prom_version }}.linux-amd64/prometheus \
+    --config.file=/opt/prometheus/prometheus-{{ prom_version }}.linux-amd64/prometheus.yaml \
+    --storage.tsdb.path /var/lib/prometheus/ \
+    --web.console.templates=/opt/prometheus/prometheus-{{ prom_version }}.linux-amd64/consoles \
+    --web.console.libraries=/opt/prometheus/prometheus-{{ prom_version }}.linux-amd64/consoles/console_libraries
+
+[Install]
+WantedBy=multi-user.target

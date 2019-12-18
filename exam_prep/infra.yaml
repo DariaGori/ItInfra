@@ -1,4 +1,19 @@
 ---
+- name: Configure bind
+  hosts: dns
+  become: yes
+  roles: 
+    - bind
+    - bind_exporter
+  tags:
+    - b
+
+- name: Init for mgm
+  hosts: mgm
+  become: yes
+  roles:
+    - init
+  
 - name: Configure apache
   hosts: mgm
   become: yes
@@ -8,16 +23,14 @@
   tags:
     - apache
 
-- name: Configure DNS, syslog and node exporters
+- name: Configure syslog and node exporters
   hosts: dns
   become: yes
   roles:
-    - bind
-    - bind_exporter
     - syslog
     - node_exporter
   tags:
-    - bsn
+    - sn
 
 - name: Configure MySQL and InfluxDB
   hosts: host01

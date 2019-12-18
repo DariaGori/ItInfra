@@ -28,10 +28,10 @@ jobs:
   - name: apache
     port: 9117
     targets:
-      - host01.syster.ttu
+      - 192.168.100.101
       
-  - name: haproxy
-    port: 9101
-    targets:
-      - host02.syster.ttu
+#  - name: haproxy
+#    port: 9101
+#    targets:
+#      - host02.syster.ttu
 

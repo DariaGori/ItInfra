@@ -1,0 +1,23 @@
+- name: Install packages
+  apt: 
+    package: ['influxdb', 'influxdb-client', 'python-pip']
+
+- name: Pip install InfluxDB
+  pip:
+    name: ['requests', 'influxdb']
+
+- name: Download Telegraf
+  get_url:
+    url: https://dl.influxdata.com/telegraf/releases/telegraf_{{ tel_version }}_amd64.deb
+    dest: /opt/telegraf_{{ tel_version }}_amd64.deb
+
+- name: Install Telegraf
+  apt:
+    deb: /opt/telegraf_{{ tel_version }}_amd64.deb
+
+- name: Configure Telegraf
+  template:
+    src: telegraf.conf.j2
+    dest: /etc/telegraf/telegraf.conf
+  notify:
+    - Restart telegraf

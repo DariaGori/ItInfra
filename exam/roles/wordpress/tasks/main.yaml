@@ -1,0 +1,30 @@
+- name: Get Docker and python pip packages
+  apt:
+    name: ['python-pip', 'docker.io']
+    state: latest
+
+- name: Pip install Docker
+  pip:
+    name: 
+      - docker
+      - requests>={{ requests_version }}
+
+- name: Create docker WP instances
+  docker_container:
+    name: wordpress-{{ item }}
+    image: wordpress:latest
+    detach: true
+    restart_policy: always
+    published_ports:
+      # ContainerPort:HostPort
+      - 8{{ item }}80:80 
+    env:
+      WORDPRESS_DB_HOST=mysql.syster.ttu:3306,
+      WORDPRESS_DB_NAME={{ db_name }},
+      WORDPRESS_DB_USER={{ mysql_user }},
+      WORDPRESS_DB_PASSWORD={{ password }}
+    dns_servers:
+      - "{{ master_ip }}"
+      - "{{ slave_ip }}"
+  loop: "{{ wp_containers[:wp_active_count] }}"
+

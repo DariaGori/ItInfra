@@ -1,0 +1,49 @@
+- name: Create Prometheus folder
+  file: 
+    path: /opt/prometheus
+    state: directory
+    mode: '0755'
+    
+- name: Create tsdb folder
+  file:
+    path: /var/lib/prometheus
+    state: directory
+    mode: '0755'
+    owner: "{{ user }}"
+
+- name: Download prometheus
+  get_url:
+    url: https://github.com/prometheus/prometheus/releases/download/v{{ prom_version }}/prometheus-{{ prom_version }}.linux-amd64.tar.gz
+    dest: /opt/prometheus-{{ prom_version }}.linux-amd64.tar.gz
+
+- name: Unarchive Prometheus
+  unarchive:
+    src: /opt/prometheus-{{ prom_version }}.linux-amd64.tar.gz
+    dest: /opt/prometheus/
+    remote_src: yes
+    
+- name: Copy prometheus to /usr/local/bin
+  shell: "sudo cp -rp /opt/prometheus/prometheus-{{ prom_version }}.linux-amd64/prometheus /usr/local/bin/"  
+
+- name: Copy promtool bin 
+  shell: "sudo cp -rp /opt/prometheus/prometheus-{{ prom_version }}.linux-amd64/promtool /usr/local/bin"
+
+- name: Configure Prometheus
+  template:
+    src: prometheus.yaml.j2
+    dest: /opt/prometheus/prometheus-{{ prom_version }}.linux-amd64/prometheus.yaml
+  notify: 
+    - Restart prometheus
+
+- name: Create Prometheus service
+  template:
+    src: prometheus.service.j2
+    dest: /etc/systemd/system/prometheus.service
+  notify: 
+    - Restart systemd
+
+- name: Start and enable Prometheus
+  service:
+    name: prometheus
+    state: started
+    enabled: yes

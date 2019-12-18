@@ -1,0 +1,28 @@
+- name: Install Apache and PHP
+  apt: 
+    name: ["apache2", "php"]
+    force_apt_get: yes
+    update_cache: yes
+    state: latest
+
+- name: Set Apache to listen on a custom port
+  copy:
+    src: ports.conf.j2
+    dest: /etc/apache2/ports.conf
+  notify: 
+    - Restart apache
+
+# Set root folder
+- name: Add config
+  copy:
+    src: 8080-php.conf.j2
+    dest: /etc/apache2/sites-enabled/8080-php.conf
+  notify:
+    - Restart apache
+
+- name: Create PHP file
+  copy:
+    src: index.php
+    dest: /var/www/php/
+
+

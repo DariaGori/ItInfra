@@ -1,0 +1,28 @@
+zone "syster.ttu" {
+{% if dns_role == "master" %}
+    type master;
+    file "/etc/bind/db.syster";
+  allow-transfer { 192.168.100.103; };
+    notify yes;
+{% else %}
+    type slave;
+    file "/var/lib/bind/db.syster";
+    masters {
+      {{ master_ip }};
+    };
+{% endif %}
+};
+
+zone "100.168.192.in-addr.arpa" {
+{% if dns_role == "master" %}
+    type master;
+    file "/etc/bind/db.syster.ptr";
+  allow-transfer { 192.168.100.103; };
+{% else %}
+    type slave;
+    file "/var/lib/bind/db.syster.ptr";
+    masters {
+      {{ master_ip }};
+    };
+{% endif %}
+};

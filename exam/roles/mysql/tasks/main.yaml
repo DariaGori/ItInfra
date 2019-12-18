@@ -1,0 +1,41 @@
+- name: Install MySQL server
+  apt:
+    name: mysql-server
+    state: present
+
+- name: Install PyMySQL packages
+  apt: 
+    name: ["python-pymysql", "python3-pymysql", "php", "php-mysql", "python-mysqldb"]
+    state: present
+  become: yes
+
+- name: Start MySQL service
+  service:
+    name: mysql
+    state: started
+    enabled: true
+
+# Set bind address to 0.0.0.0 to listen to all networks
+- name: Change bind config
+  template:
+    src: mysqld.cnf.j2
+    dest: /etc/mysql/mysql.conf.d/mysqld.cnf
+  become: yes
+  notify:
+    - Restart MySQL
+
+- name: Create a DB
+  mysql_db:
+    name: "{{ db_name }}"
+    state: present
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+
+- name: Create user for new DB
+  mysql_user:
+    name: "{{ mysql_user }}"
+    password: "{{ password }}"
+    host: "{{ mysql_host }}"
+    login_host: "{{ login_host }}"
+    priv: '{{ db_name }}.*:ALL'
+    state: present
+    login_unix_socket: /var/run/mysqld/mysqld.sock

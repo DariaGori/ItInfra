@@ -1,0 +1,9 @@
+[Unit]
+Description=Haproxy Exporter
+
+[Service]
+User={{ hap_exp_user }}
+ExecStart=/opt/haproxy_exporter/haproxy_exporter
+
+[Install]
+WantedBy=multi-user.target

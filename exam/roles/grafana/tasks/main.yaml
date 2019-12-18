@@ -1,0 +1,20 @@
+- name: Install docker
+  apt:
+    package: [docker.io, python-pip]
+
+- name: Install docker py
+  pip:
+    name: docker-py
+
+- name: Download and start Grafana container
+  docker_container:
+    name: grafana-server
+    image: "grafana/grafana"
+    detach: true
+    state: started
+    restart_policy: always
+    published_ports:
+      - 3000:3000
+    dns_servers:
+      - "{{ master_ip }}"
+      - "{{ slave_ip }}"

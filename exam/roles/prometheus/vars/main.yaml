@@ -1,0 +1,37 @@
+---
+user: dariagory
+prom_version: 2.13.1
+
+jobs:
+  - name: prometheus
+    port: 9090
+    targets: 
+      - host01.syster.ttu
+
+  - name: linux
+    port: 9100
+    targets:
+      - host01.syster.ttu
+      - host02.syster.ttu
+
+  - name: bind
+    port: 9119
+    targets:
+      - ns2.syster.ttu
+      - ns1.syster.ttu
+
+  - name: mysql
+    port: 9104
+    targets:
+      - host01.syster.ttu
+      
+#  - name: apache
+#    port: 9117
+#    targets:
+#      - 192.168.100.101
+      
+  - name: haproxy
+    port: 9101
+    targets:
+      - host02.syster.ttu
+

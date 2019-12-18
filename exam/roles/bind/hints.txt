@@ -1,0 +1,13 @@
+Statistics-channels - allows to collect bind monitoring data in XML format
+
+SOA - start of authority.
+PTR records map IP addresses to domain names.
+
+@       IN       SOA    syster.ttu. root.syster.ttu. (
+                       {{ timestamp.stdout_lines[0] }}       ; Serial // Used to check if the zone changed
+                         604800       ; Refresh // How often slave checks for changes
+                          86400       ; Retry // How soon to re-check, if the 1st check fails
+                        2419200       ; Expire // How long the zone is valid after refresh
+                         604800 )     ; Negative Cache TTL 
+;
+

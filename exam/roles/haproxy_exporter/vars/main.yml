@@ -1,0 +1,4 @@
+---
+haproxy_exp_version: 0.10.0
+
+hap_exp_user: haproxy_exporter

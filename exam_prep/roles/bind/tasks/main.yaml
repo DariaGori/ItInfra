@@ -1,6 +1,10 @@
+- name: Test
+  shell: "sudo apt-get update"
+
 - name: Get bind
   apt:
-    package: bind9
+    name: bind9
+    state: present
 
 - name: Configure bind
   template:

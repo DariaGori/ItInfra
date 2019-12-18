@@ -1,0 +1,62 @@
+---
+- name: Configure bind
+  hosts: dns
+  become: yes
+  roles: 
+    - bind
+    - bind_exporter
+  tags:
+    - b
+
+- name: Init for mgm
+  hosts: mgm
+  become: yes
+  roles:
+    - init
+  
+#- name: Configure apache
+#  hosts: mgm
+#  become: yes
+#  roles:
+#    - apache
+#    - apache_exporter
+#  tags:
+#    - apache
+
+- name: Configure syslog and node exporters
+  hosts: dns
+  become: yes
+  roles:
+    - syslog
+    - node_exporter
+  tags:
+    - sn
+
+- name: Configure MySQL and InfluxDB
+  hosts: host01
+  become: yes
+  roles:
+    - mysql
+    - mysql_exporter
+    - influxdb
+  tags:
+    - mi
+
+- name: Configure Prometheus and Grafana
+  hosts: host01
+  become: yes
+  roles:
+    - prometheus
+    - grafana
+  tags:
+    - prom
+
+- name: Wordpress
+  hosts: host02
+  become: yes
+  roles:
+    - wordpress
+    - haproxy
+    - haproxy_exporter
+  tags:
+    - wh

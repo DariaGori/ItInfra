@@ -1,0 +1,4 @@
+docker_container:
+detach - Enable detached mode to leave the container running in background.
+dns_servers - List of custom DNS servers.
+published_ports - host_port:container_port

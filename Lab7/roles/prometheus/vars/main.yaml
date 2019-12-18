@@ -8,12 +8,6 @@ jobs:
     targets: 
       - host01.syster.ttu
 
-  - name: ping
-    port: 9105
-    targets:
-      - host01.syster.ttu
-      - host02.syster.ttu
-
   - name: linux
     port: 9100
     targets:
@@ -24,11 +18,7 @@ jobs:
     port: 9119
     targets:
       - ns2.syster.ttu
-
-  - name: bind-master
-    port: 9119
-    targets:
-      - ns1.syster.ttu
+      - ns1.syster.ttu    
 
   - name: mysql
     port: 9104

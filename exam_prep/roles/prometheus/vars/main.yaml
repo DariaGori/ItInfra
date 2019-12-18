@@ -8,30 +8,30 @@ jobs:
     targets: 
       - host01.syster.ttu
 
-  - name: ping
-    port: 9105
-    targets:
-      - host01.syster.ttu
-      - host02.syster.ttu
-
   - name: linux
     port: 9100
     targets:
       - host01.syster.ttu
       - host02.syster.ttu
 
-  - name: bind-slave
+  - name: bind
     port: 9119
     targets:
       - ns2.syster.ttu
-
-  - name: bind-master
-    port: 9119
-    targets:
       - ns1.syster.ttu
 
   - name: mysql
     port: 9104
     targets:
       - host01.syster.ttu
+      
+  - name: apache
+    port: 9117
+    targets:
+      - host01.syster.ttu
+      
+  - name: haproxy
+    port: 9101
+    targets:
+      - host02.syster.ttu
 

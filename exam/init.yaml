@@ -3,15 +3,22 @@
   hosts: servers
   become: yes
   tasks:
+    - name: Create main user
+      user:
+        name: "{{ user }}"
+        group: sudo
+        password: "{{ password }}"
+        shell: /bin/bash
+    
     - name: Remove sudo password request
       copy:
-        dest: /etc/sudoers.d/dariagory
-        content: "dariagory ALL = NOPASSWD: ALL"
+        dest: /etc/sudoers.d/{{ user }}
+        content: "{{ user }} ALL = NOPASSWD: ALL"
 
     - name: Push management SSH keys
       authorized_key:
-        user: dariagory
-        key: "{{ lookup('file', '/home/dariagory/.ssh/id_rsa.pub') }}"
+        user: "{{ user }}"
+        key: "{{ lookup('file', '/home/{{ user }}/.ssh/id_rsa.pub') }}"
 
     - name: Setup network interface
       template:

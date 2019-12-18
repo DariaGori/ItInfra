@@ -22,7 +22,7 @@
       WORDPRESS_DB_HOST=mysql.syster.ttu:3306,
       WORDPRESS_DB_NAME={{ db_name }},
       WORDPRESS_DB_USER={{ mysql_user }},
-      WORDPRESS_DB_PASSWORD={{ password }}
+      WORDPRESS_DB_PASSWORD={{ mysql_password }}
     dns_servers:
       - "{{ master_ip }}"
       - "{{ slave_ip }}"

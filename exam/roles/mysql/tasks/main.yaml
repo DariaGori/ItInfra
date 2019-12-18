@@ -33,7 +33,7 @@
 - name: Create user for new DB
   mysql_user:
     name: "{{ mysql_user }}"
-    password: "{{ password }}"
+    password: "{{ mysql_password }}"
     host: "{{ mysql_host }}"
     login_host: "{{ login_host }}"
     priv: '{{ db_name }}.*:ALL'
